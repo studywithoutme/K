@@ -466,7 +466,7 @@
             
             <div class="tab-menu">
                 <button class="tab-btn active" onclick="switchEngTab('learning')">Learning</button>
-                <button class="tab-btn" onclick="switchEngTab('mock')">Mock Exam</button>
+                <button class="tab-btn" onclick="switchEngTab('mock-menu')">Mock Exam</button>
             </div>
 
             <!-- ส่วนที่ 1: Learning -->
@@ -548,8 +548,30 @@
                 </div>
             </div>
 
-            <!-- ส่วนที่ 2: Mock Exam -->
-            <div id="eng-mock" style="display: none;">
+            <!-- ส่วนที่เลือก Mock Exam 1-3 -->
+            <div id="eng-mock-menu" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary);">Mock Exam ชุดข้อสอบจำลอง</h2>
+                <p style="text-align: center; color: var(--text-sub); margin-bottom: 2rem;">เลือกชุดข้อสอบที่ต้องการทำ</p>
+                
+                <div class="grid-menu">
+                    <div class="card-btn" onclick="startMockExam(1)">
+                        <h2>Mock Exam 1</h2>
+                        <p>ชุดข้อสอบมาตรฐาน (30 ข้อ)</p>
+                    </div>
+                    <div class="card-btn" onclick="startMockExam(2)">
+                        <h2>Mock Exam 2</h2>
+                        <p>เร็วๆ นี้</p>
+                    </div>
+                    <div class="card-btn" onclick="startMockExam(3)">
+                        <h2>Mock Exam 3</h2>
+                        <p>เร็วๆ นี้</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนทำข้อสอบ Mock Exam 1 -->
+            <div id="eng-mock-1" style="display: none;">
+                <button class="back-btn" onclick="switchEngTab('mock-menu')">← กลับไปเลือกชุดข้อสอบ</button>
                 <div style="text-align: center;">
                     <div class="timer-box">
                         ⏱️ เวลาที่ใช้: <span id="timer-display">00:00</span>
@@ -560,6 +582,14 @@
                     <div id="quiz-container"></div>
                     <button type="button" class="submit-btn" onclick="submitQuiz()">ส่งคำตอบและดูผลวิเคราะห์</button>
                 </form>
+            </div>
+
+            <!-- ส่วนแสดงข้อความ "รออีกนิด" สำหรับ Mock Exam 2 และ 3 -->
+            <div id="eng-mock-coming-soon" style="display: none;">
+                <button class="back-btn" onclick="switchEngTab('mock-menu')">← กลับไปเลือกชุดข้อสอบ</button>
+                <div class="lazy-box">
+                    <p>😴 รออีกนิด ผู้สร้างกำลังทยอยเติมข้อสอบชุดนี้อยู่</p>
+                </div>
             </div>
 
             <!-- หน้าแสดงผลสอบ -->
@@ -574,7 +604,7 @@
                     </div>
                     <p id="feedback-text" style="font-size: 1.1rem; color: var(--primary); margin-bottom: 2rem;"></p>
 
-                    <button class="tab-btn active" onclick="resetQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+                    <button class="tab-btn active" onclick="startMockExam(1)">ทำแบบทดสอบอีกครั้ง</button>
                 </div>
             </div>
 
@@ -675,16 +705,42 @@
             if(tab === 'learning') {
                 tabs[0].classList.add('active');
                 document.getElementById('eng-learning').style.display = 'block';
-                document.getElementById('eng-mock').style.display = 'none';
+                document.getElementById('eng-mock-menu').style.display = 'none';
+                document.getElementById('eng-mock-1').style.display = 'none';
+                document.getElementById('eng-mock-coming-soon').style.display = 'none';
                 document.getElementById('eng-result').style.display = 'none';
                 stopTimer();
-            } else if(tab === 'mock') {
+            } else if(tab === 'mock-menu') {
                 tabs[1].classList.add('active');
                 document.getElementById('eng-learning').style.display = 'none';
-                document.getElementById('eng-mock').style.display = 'block';
+                document.getElementById('eng-mock-menu').style.display = 'block';
+                document.getElementById('eng-mock-1').style.display = 'none';
+                document.getElementById('eng-mock-coming-soon').style.display = 'none';
                 document.getElementById('eng-result').style.display = 'none';
-                startTimer();
+                stopTimer();
             }
+        }
+
+        // Handle Mock Exam Selection (1 to 3)
+        function startMockExam(examNumber) {
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+
+            document.getElementById('eng-learning').style.display = 'none';
+            document.getElementById('eng-mock-menu').style.display = 'none';
+            document.getElementById('eng-result').style.display = 'none';
+
+            if(examNumber === 1) {
+                document.getElementById('eng-mock-coming-soon').style.display = 'none';
+                document.getElementById('eng-mock-1').style.display = 'block';
+                document.getElementById('quiz-form').reset();
+                startTimer();
+            } else {
+                document.getElementById('eng-mock-1').style.display = 'none';
+                document.getElementById('eng-mock-coming-soon').style.display = 'block';
+                stopTimer();
+            }
+            window.scrollTo(0,0);
         }
 
         // Render Flashcards
@@ -786,14 +842,9 @@
             document.getElementById('feedback-text').innerText = feedback;
 
             // Switch view
-            document.getElementById('eng-mock').style.display = 'none';
+            document.getElementById('eng-mock-1').style.display = 'none';
             document.getElementById('eng-result').style.display = 'block';
             window.scrollTo(0,0);
-        }
-
-        function resetQuiz() {
-            document.getElementById('quiz-form').reset();
-            switchEngTab('mock');
         }
 
         // Initialize Page
