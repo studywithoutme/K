@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning Web Application</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem 1rem;
+            flex-grow: 1;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Nav Buttons / Cards */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
+        }
+
+        .card-btn h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Creator Sleeping Box */
+        .lazy-box {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+
+        .lazy-box p {
+            font-size: 1.5rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* English Menu Tabs */
+        .tab-menu {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 2rem;
+            border: none;
+            background: var(--border);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Custom Link Box (อยู่ด้านบน Vocabulary) */
+        .custom-link-box {
+            background: var(--card-bg);
+            padding: 1.2rem 1.5rem;
+            border-radius: 1rem;
+            border: 2px dashed var(--primary);
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .custom-link-box label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .link-container {
+            min-height: 40px;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            word-break: break-all;
+        }
+
+        .drive-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .drive-link-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Flashcards Grid */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .flashcard {
+            background-color: transparent;
+            height: 180px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 1rem;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+        }
+
+        .flashcard-front h3 {
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background-color: #eef2ff;
+            border-color: var(--primary);
+        }
+
+        .flashcard-back h4 {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .flashcard-back p {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        /* Reading Section */
+        .reading-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .reading-content h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .reading-item {
+            margin-bottom: 2rem;
+        }
+
+        .reading-item h3 {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .reading-item p, .reading-item ul {
+            color: var(--text-sub);
+            line-height: 1.7;
+            margin-left: 1rem;
+        }
+
+        .example-box {
+            background: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            padding: 0.8rem 1rem;
+            margin-top: 0.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        /* Mock Exam */
+        .timer-box {
+            position: sticky;
+            top: 70px;
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            z-index: 90;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .question-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option-label:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .option-label input {
+            margin-right: 0.75rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 0.8rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Results Screen */
+        .result-box {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .time-display {
+            font-size: 1.2rem;
+            color: var(--text-sub);
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="showPage('page-home')">📚 Learning Space</div>
+    </header>
+
+    <div class="container">
+
+        <!-- หน้าที่ 1: หน้าแรก เลือกวิชา -->
+        <div id="page-home" class="page active">
+            <h1 style="text-align: center; margin-bottom: 0.5rem;">ยินดีต้อนรับสู่บทเรียนออนไลน์</h1>
+            <p style="text-align: center; color: var(--text-sub);">กรุณาเลือกวิชาที่ต้องการเรียนรู้</p>
+            
+            <div class="grid-menu">
+                <div class="card-btn" onclick="showPage('page-chemistry')">
+                    <h2>เคมี</h2>
+                    <p>Chemistry</p>
+                </div>
+                <div class="card-btn" onclick="showPage('page-english-main')">
+                    <h2>อังกฤษ</h2>
+                    <p>English</p>
+                </div>
+                <div class="card-btn" onclick="showPage('page-math')">
+                    <h2>คณิต</h2>
+                    <p>Mathematics</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้าเคมี -->
+        <div id="page-chemistry" class="page">
+            <button class="back-btn" onclick="showPage('page-home')">← ย้อนกลับ</button>
+            <div class="lazy-box">
+                <p>😴 ผู้สร้างกำลังนอนดูซีรี่ย์อยู่</p>
+            </div>
+        </div>
+
+        <!-- หน้าคณิต -->
+        <div id="page-math" class="page">
+            <button class="back-btn" onclick="showPage('page-home')">← ย้อนกลับ</button>
+            <div class="lazy-box">
+                <p>😴 ผู้สร้างกำลังนอนดูซีรี่ย์อยู่</p>
+            </div>
+        </div>
+
+        <!-- หน้าหลักวิชาอังกฤษ -->
+        <div id="page-english-main" class="page">
+            <button class="back-btn" onclick="showPage('page-home')">← ย้อนกลับหน้าแรก</button>
+            
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchEngTab('learning')">Learning</button>
+                <button class="tab-btn" onclick="switchEngTab('mock')">Mock Exam</button>
+            </div>
+
+            <!-- ส่วนที่ 1: Learning -->
+            <div id="eng-learning">
+
+                <!-- พื้นที่สำหรับใส่ลิงก์ Google Drive -->
+                <div class="custom-link-box">
+                    <label>📌 เอกสารประกอบการเรียนเพิ่มเติม:</label>
+                    <div class="link-container" id="user-link-area">
+                        <a href="https://drive.google.com/file/d/1dpxgIf1icZIVf_H4QKfYEwbQ9ZEmyEbo/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="drive-link-btn">
+                            📁 คลิกที่นี่เพื่อเปิดเอกสารใน Google Drive
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Part 1: Flashcards -->
+                <h2 style="margin-bottom: 0.5rem; color: var(--primary);">1. Vocabulary (Flashcards)</h2>
+                <p style="color: var(--text-sub); margin-bottom: 1rem;">คลิกที่การ์ดเพื่อดูคำแปลและประโยคตัวอย่าง</p>
+                <div class="flashcard-grid" id="flashcard-container"></div>
+
+                <!-- Part 2: Reading -->
+                <div class="reading-content" style="margin-top: 3rem;">
+                    <h2>2. Reading & Grammar Rules</h2>
+                    
+                    <div class="reading-item">
+                        <h3>1. การอนุมาน (Making Inferences)</h3>
+                        <p>การอนุมาน คือการคาดเดาหรือสรุปความหมายที่ผู้เขียนไม่ได้บอกออกมาตรงๆ</p>
+                        <div class="example-box">
+                            <strong>ตัวอย่าง:</strong><br>
+                            ประโยค: "เมื่อวานบ้านหลังนี้ไฟไหม้ และระบบไฟฟ้าไม่ได้ปรับปรุงมาตั้งแต่ปี 1940"<br>
+                            <em>อนุมานได้ว่า:</em> ไฟฟ้าลัดวงจรน่าจะเป็นสาเหตุของไฟไหม้ (เพราะเรารู้อยู่แล้วว่าระบบไฟเก่าอาจทำให้เกิดไฟไหม้ได้)
+                        </div>
+                    </div>
+
+                    <div class="reading-item">
+                        <h3>2. โครงสร้างเรียงความแบบแก้ปัญหา (Problem-Solution Essay Structure)</h3>
+                        <p>เรียงความประเภทนี้แบ่งการเขียนออกเป็น 3 ส่วนหลัก:</p>
+                        <ul>
+                            <li><strong>บทนำ (Introduction):</strong> ให้ข้อมูลอภิปรายพื้นหลัง (Background) และระบุประโยคหลักใจความสำคัญ (Thesis Statement)</li>
+                            <li><strong>เนื้อเรื่อง (Body Paragraphs):</strong> พูดถึงปัญหา (Problem) และการแก้ไขปัญหา/ทางออก (Solution)</li>
+                            <li><strong>บทสรุป (Conclusion):</strong> สรุปปัญหาว่าถูกแก้ไขอย่างไร รวมถึงประเมินผลข้อดีข้อเสียของสิ่งนั้น</li>
+                        </ul>
+                        <div class="example-box">
+                            <strong>ตัวอย่าง:</strong><br>
+                            ปัญหา: การเขียนเอกสารด้วยมือทำงานได้ช้าและผิดพลาดง่าย<br>
+                            ทางออก: การพิมพ์ด้วยเครื่องพิมพ์ดีดช่วยให้ทำงานได้เร็วขึ้นและอ่านง่ายขึ้น
+                        </div>
+                    </div>
+
+                    <div class="reading-item">
+                        <h3>3. used to vs. would</h3>
+                        <p>ใช้เล่าถึงสิ่งที่ <strong>เคยทำเป็นประจำในอดีต</strong> แต่ตอนนี้ไม่ได้ทำแล้ว</p>
+                        <ul>
+                            <li><strong>used to + V.inf:</strong> ใช้ได้ทั้งกับการกระทำ (Action) และสถานะ/ความรู้สึก (State)</li>
+                            <div class="example-box">ตัวอย่าง: He used to live in Belgium. (เขาเคยอาศัยอยู่ในเบลเยียม - สถานะ)</div>
+                            <li style="margin-top:0.5rem;"><strong>would + V.inf:</strong> ใช้ได้เฉพาะการกระทำ (Action) ที่เกิดขึ้นซ้ำๆ เท่านั้น <em>ห้ามใช้กับสถานะ/ความรู้สึก</em></li>
+                            <div class="example-box">ตัวอย่าง: They would write documents by hand. (พวกเขาเคยเขียนเอกสารด้วยมือ - การกระทำ)</div>
+                            <li style="color: var(--danger); margin-top:0.5rem;"><strong>ข้อควรระวัง:</strong> ❌ He would live in Belgium. (ผิด เพราะ live เป็นสถานะ)</li>
+                        </ul>
+                    </div>
+
+                    <div class="reading-item">
+                        <h3>4. การลดรูปประโยคคุณศัพท์ (Reduced Non-essential Adjective Clauses)</h3>
+                        <p>คือการย่อประโยคส่วนขยายที่ไม่จำเป็นให้สั้นลงเพื่อความกระชับ โดยตัด Relative pronoun (who/which) และ Verb to be ออก:</p>
+                        
+                        <p style="margin-top:0.5rem;"><strong>• การลดรูปกริยาช่อง 3 (Passive Voice - be + V.3):</strong></p>
+                        <div class="example-box">
+                            ประโยคเต็ม: Tappsi, which was founded in 2012, merged with another company.<br>
+                            ลดรูป: Tappsi, founded in 2012, merged with another company.<br>
+                            ย้ายไว้หน้าประโยคได้: Founded in 2012, Tappsi merged with another company.
+                        </div>
+
+                        <p style="margin-top:0.8rem;"><strong>• การลดรูปส่วนขยายที่เป็นคำนาม (be + Noun):</strong></p>
+                        <div class="example-box">
+                            ประโยคเต็ม: Sandhya Sriram, who is a cell biologist, was able to grow shrimp in a lab.<br>
+                            ลดรูป: Sandhya Sriram, a cell biologist, was able to grow shrimp in a lab.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนที่ 2: Mock Exam -->
+            <div id="eng-mock" style="display: none;">
+                <div style="text-align: center;">
+                    <div class="timer-box">
+                        ⏱️ เวลาที่ใช้: <span id="timer-display">00:00</span>
+                    </div>
+                </div>
+
+                <form id="quiz-form">
+                    <div id="quiz-container"></div>
+                    <button type="button" class="submit-btn" onclick="submitQuiz()">ส่งคำตอบและดูผลวิเคราะห์</button>
+                </form>
+            </div>
+
+            <!-- หน้าแสดงผลสอบ -->
+            <div id="eng-result" style="display: none;">
+                <div class="result-box">
+                    <h2>🎉 สรุปผลการทำแบบทดสอบ</h2>
+                    <div class="score-display">
+                        <span id="score-text">0</span> / 30
+                    </div>
+                    <div class="time-display">
+                        ใช้เวลาในการทำข้อสอบทั้งหมด: <strong id="time-taken-text" style="color:var(--text-main);">00:00</strong> นาที
+                    </div>
+                    <p id="feedback-text" style="font-size: 1.1rem; color: var(--primary); margin-bottom: 2rem;"></p>
+
+                    <button class="tab-btn active" onclick="resetQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Data: Vocab Flashcards
+        const vocabData = [
+            { word: "Drawback", meaning: "ข้อเสีย, ข้อด้อย", example: "High cost is the main drawback. (ราคาแพงคือข้อเสียหลัก)" },
+            { word: "Fake", meaning: "ปลอม, ไม่แท้", example: "This flower is fake. (ดอกไม้ดอกนี้เป็นของปลอม)" },
+            { word: "Flexible", meaning: "ยืดหยุ่น, ดัดงอได้", example: "The plastic pipe is flexible. (ท่อพลาสติกนี้ดัดงอได้)" },
+            { word: "Fragile", meaning: "เปราะบาง, แตกหักง่าย", example: "Be careful, this glass is fragile. (ระวังหน่อย แก้วใบนี้เปราะบางมาก)" },
+            { word: "Ironically", meaning: "อย่างย้อนแย้ง", example: "Ironically, the police got lost. (ย้อนแย้งจัง ตำรวจกลับหลงทางเสียเอง)" },
+            { word: "Luxury", meaning: "หรูหรา, ฟุ่มเฟือย", example: "He bought a luxury car. (เขาซื้อรถหรู)" },
+            { word: "Scarce", meaning: "ขาดแคลน, มีน้อย", example: "Fresh water is scarce here. (น้ำสะอาดที่นี่มีน้อยและขาดแคลน)" },
+            { word: "Stiff", meaning: "แข็ง, ดัดยาก", example: "These new shoes feel stiff. (รองเท้าใหม่คู่นี้รู้สึกแข็งดัดยาก)" },
+            { word: "Take off", meaning: "ประสบความสำเร็จอย่างรวดเร็ว", example: "Her online business began to take off. (ธุรกิจออนไลน์ของเธอเริ่มประสบความสำเร็จอย่างรวดเร็ว)" },
+            { word: "Wire", meaning: "ลวด, สายไฟ", example: "Cut the green wire. (ตัดสายไฟสีเขียว)" },
+            { word: "Bacteria", meaning: "แบคทีเรีย", example: "Soap kills bacteria. (สบู่ช่วยฆ่าแบคทีเรีย)" },
+            { word: "Settle", meaning: "ตั้งถิ่นฐาน, ตั้งรกราก", example: "They plan to settle in Tokyo. (พวกเขาตั้งใจจะย้ายไปตั้งรกรากที่โตเกียว)" },
+            { word: "Preserve", meaning: "ถนอมอาหาร", example: "Salt helps preserve meat. (เกลือช่วยถนอมอาหารจำพวกเนื้อสัตว์)" },
+            { word: "Limitation", meaning: "ข้อจำกัด", example: "Everyone has their own limitation. (ทุกคนต่างมีข้อจำกัดของตัวเอง)" },
+            { word: "Tightly", meaning: "อย่างแน่นหนา", example: "Close the bottle tightly. (ปิดฝาขวดให้แน่นหนา)" },
+            { word: "Critical", meaning: "สำคัญยิ่ง", example: "Water is critical for life. (น้ำมีความสำคัญยิ่งต่อชีวิต)" },
+            { word: "Break down", meaning: "ย่อยสลาย, แยกส่วน", example: "Food breaks down in the stomach. (อาหารจะย่อยสลายในกระเพาะ)" },
+            { word: "Transform", meaning: "เปลี่ยนแปลง", example: "Heat can transform ice into water. (ความร้อนสามารถเปลี่ยนรูปน้ำแข็งให้เป็นน้ำ)" },
+            { word: "Nutritious", meaning: "มีคุณค่าทางโภชนาการ", example: "Milk is very nutritious. (นมมีคุณค่าทางโภชนาการสูง)" },
+            { word: "Adapt", meaning: "ปรับตัว", example: "We must adapt to new circumstances. (เราต้องรู้จักปรับตัวให้เข้ากับสถานการณ์ใหม่)" },
+            { word: "Pursue", meaning: "ไล่ตาม (เป้าหมาย)", example: "Pursue your dreams. (จงไล่ตามความฝันของคุณ)" },
+            { word: "Assertive", meaning: "มั่นใจ, กล้าแสดงออก", example: "You need to be more assertive. (คุณต้องมีความมั่นใจและกล้าแสดงออกมากกว่านี้)" },
+            { word: "Credit", meaning: "คำชมเชย, ความดีความชอบ", example: "She took credit for the team's work. (เธอรับความดีความชอบจากผลงานของทีม)" },
+            { word: "Remarkable", meaning: "โดดเด่น, น่าทึ่ง", example: "He has a remarkable talent. (เขาเปิดตัวพร้อมความสามารถที่โดดเด่นน่าทึ่ง)" },
+            { word: "Disrupt", meaning: "รบกวน, เปลี่ยนแปลงรูปแบบเดิม", example: "Noise can disrupt my sleep. (เสียงดังรบกวนการนอนของฉัน)" },
+            { word: "Determined", meaning: "มุ่งมั่น, แน่วแน่", example: "She is determined to win. (เธอตั้งใจและมุ่งมั่นที่จะชนะ)" },
+            { word: "Ambitious", meaning: "ทะเยอทะยาน", example: "He is an ambitious young man. (เขาเป็นชายหนุ่มที่มีความทะเยอทะยาน)" },
+            { word: "Insurance", meaning: "การประกันภัย", example: "I bought health insurance. (ฉันซื้อประกันสุขภาพไว้)" },
+            { word: "Secure", meaning: "ปลอดภัย, มั่นคง", example: "Keep your password secure. (เก็บรหัสผ่านของคุณให้ปลอดภัย)" },
+            { word: "Network", meaning: "เครือข่าย, คอนเนกชัน", example: "A wide network helps your job search. (เครือข่ายคอนเนกชันที่กว้างขวางช่วยให้หางานง่ายขึ้น)" }
+        ];
+
+        // Data: Questions & Answer Key
+        const quizData = [
+            // Part 1: Vocab
+            { q: "1. What is the meaning of the word drawback?", options: ["a. idea", "b. disadvantage", "c. cost", "d. benefit"], ans: "b" },
+            { q: "2. The word fake means ______.", options: ["a. flowering", "b. wild", "c. not real", "d. genuine"], ans: "c" },
+            { q: "3. Something that is flexible is ______.", options: ["a. able to bend", "b. heavy", "c. growing", "d. stiff"], ans: "a" },
+            { q: "4. If an item is fragile, it is ______.", options: ["a. difficult to use", "b. expensive", "c. easily broken", "d. heavy"], ans: "c" },
+            { q: "5. The word ironically means ______.", options: ["a. in an unexpected way", "b. obviously", "c. in a way that is hard to understand", "d. safely"], ans: "a" },
+            { q: "6. Luxury items are ______.", options: ["a. popular", "b. very expensive but not necessary", "c. imported from other countries", "d. easily broken"], ans: "b" },
+            { q: "7. The word scarce means ______.", options: ["a. far away", "b. hard to find", "c. on the ground", "d. attractive"], ans: "b" },
+            { q: "8. Shoes that are stiff are ______.", options: ["a. attractive", "b. difficult to find", "c. hard to bend", "d. not real"], ans: "c" },
+            { q: "9. If a business or trend took off, it ______.", options: ["a. suddenly became successful", "b. was a surprise", "c. made a profit", "d. stopped working"], ans: "a" },
+            { q: "10. A wire is defined as a ______.", options: ["a. thin piece of metal", "b. signal", "c. piece of cloth", "d. large garage"], ans: "a" },
+            { q: "11. Very small organisms that live everywhere and can cause disease are called ______.", options: ["a. plants", "b. bacteria", "c. viruses", "d. insects"], ans: "b" },
+            { q: "12. To settle means ______.", options: ["a. to go live somewhere permanently", "b. to travel around the world", "c. to build a new factory", "d. to stop working"], ans: "a" },
+            { q: "13. To prepare food so it does not go bad is to ______ it.", options: ["a. transform", "b. adapt", "c. preserve", "d. disrupt"], ans: "c" },
+            { q: "14. The word limitation means ______.", options: ["a. a large amount of something", "b. something that controls or reduces activity", "c. a rule for health", "d. an open space"], ans: "b" },
+            { q: "15. If something is closed tightly, it is closed ______.", options: ["a. loosely", "b. firmly; in a way that is difficult to open again", "c. slowly", "d. quickly"], ans: "b" },
+            { q: "16. The word critical means ______.", options: ["a. very important; necessary", "b. dangerous", "c. harmful", "d. easy to break"], ans: "a" },
+            { q: "17. To change chemically into smaller parts is to ______.", options: ["a. break down", "b. build up", "c. adapt", "d. preserve"], ans: "a" },
+            { q: "18. To transform means ______.", options: ["a. to move slowly", "b. to change completely", "c. to keep the same", "d. to reduce power"], ans: "b" },
+            { q: "19. Food that contains substances necessary for growth and good health is ______.", options: ["a. fragile", "b. nutritious", "c. scarce", "d. stiff"], ans: "b" },
+            { q: "20. To adapt means ______.", options: ["a. to change something for different conditions or use", "b. to break into pieces", "c. to buy something new", "d. to stay in one place"], ans: "a" },
+            
+            // Part 2: Grammar - Used to & Would
+            { q: "21. (Part 2: Q1) As a teenager, she ______ be much thinner. (Note: be is a state verb)", options: ["a. used to", "b. would", "c. both used to and would", "d. neither"], ans: "a" },
+            { q: "22. (Part 2: Q2) When he was a student, he ______ live in Japan. (Note: live is a state verb)", options: ["a. would", "b. used to", "c. both used to and would", "d. neither"], ans: "b" },
+            { q: "23. (Part 2: Q3) When I was growing up, I ______ have a pet lizard. (Note: have is a state verb)", options: ["a. would", "b. used to", "c. both used to and would", "d. neither"], ans: "b" },
+            { q: "24. (Part 2: Q4) In the 18th century, people ______ write their documents by hand. (Note: write is an action verb)", options: ["a. used to", "b. would", "c. both used to / would", "d. had to be"], ans: "c" },
+            { q: "25. (Part 2: Q5) Which word can ONLY describe past habits/actions, but CANNOT be used with state verbs?", options: ["a. used to", "b. would", "c. simple past", "d. present perfect"], ans: "b" },
+
+            // Part 3: Reduced Clauses
+            { q: "26. (Part 3: Q1) Original: Tappsi, which was founded in 2012, merged with another company in 2015.\nWhich is a correct reduced form?", options: ["a. Founded in 2012, Tappsi merged with another company in 2015.", "b. Tappsi founded in 2012 merged with another company in 2015.", "c. Which founded in 2012, Tappsi merged with another company in 2015.", "d. Was founded in 2012, Tappsi merged with another company in 2015."], ans: "a" },
+            { q: "27. (Part 3: Q2) Original: Kipchoge, who is admired all over the world, retired in 1973.\nWhich is the correct reduced form placed in front of the subject?", options: ["a. Admired all over the world, Kipchoge retired in 1973.", "b. Who is admired all over the world, Kipchoge retired in 1973.", "c. Is admired all over the world, Kipchoge retired in 1973.", "d. Admired all over the world Kipchoge, retired in 1973."], ans: "a" },
+            { q: "28. (Part 3: Q3) Original: Shiok Meats, which is supported partly by the government, will offer products soon.\nWhich is the correct reduced form?", options: ["a. Supported partly by the government, Shiok Meats will offer products soon.", "b. Which supported partly by the government, Shiok Meats will offer products.", "c. Supporting partly by the government, Shiok Meats will offer products.", "d. Is supported partly by the government, Shiok Meats will offer products."], ans: "a" },
+            { q: "29. (Part 3: Q4) Non-essential adjective clauses use relative pronouns like which or who, but they CANNOT use ______.", options: ["a. where", "b. that", "c. when", "d. whose"], ans: "b" },
+            { q: "30. (Part 3: Q5) How do you reduce a non-essential adjective clause with passive voice (be + past participle)?", options: ["a. Delete only the verb be.", "b. Delete both be and the relative pronoun (who/which).", "c. Delete the past participle verb.", "d. Add the word that."], ans: "b" }
+        ];
+
+        // Global Variables
+        let timerInterval;
+        let secondsElapsed = 0;
+
+        // Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // Switch English Tabs
+        function switchEngTab(tab) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            if(tab === 'learning') {
+                tabs[0].classList.add('active');
+                document.getElementById('eng-learning').style.display = 'block';
+                document.getElementById('eng-mock').style.display = 'none';
+                document.getElementById('eng-result').style.display = 'none';
+                stopTimer();
+            } else if(tab === 'mock') {
+                tabs[1].classList.add('active');
+                document.getElementById('eng-learning').style.display = 'none';
+                document.getElementById('eng-mock').style.display = 'block';
+                document.getElementById('eng-result').style.display = 'none';
+                startTimer();
+            }
+        }
+
+        // Render Flashcards
+        function renderFlashcards() {
+            const container = document.getElementById('flashcard-container');
+            container.innerHTML = '';
+            vocabData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'flashcard';
+                card.onclick = () => card.classList.toggle('flipped');
+                card.innerHTML = `
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <h3>${item.word}</h3>
+                        </div>
+                        <div class="flashcard-back">
+                            <h4>${item.meaning}</h4>
+                            <p>${item.example}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render Quiz Questions
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            quizData.forEach((qItem, index) => {
+                const qCard = document.createElement('div');
+                qCard.className = 'question-card';
+                
+                let optionsHtml = '';
+                qItem.options.forEach(opt => {
+                    const optKey = opt.trim().charAt(0); // 'a', 'b', 'c', 'd'
+                    optionsHtml += `
+                        <label class="option-label">
+                            <input type="radio" name="q${index}" value="${optKey}">
+                            ${opt}
+                        </label>
+                    `;
+                });
+
+                qCard.innerHTML = `
+                    <h4>${qItem.q.replace('\n', '<br>')}</h4>
+                    <div class="options">${optionsHtml}</div>
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        // Timer Functions
+        function startTimer() {
+            secondsElapsed = 0;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+                const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        // Submit Quiz & Show Analysis
+        function submitQuiz() {
+            stopTimer();
+            let score = 0;
+
+            quizData.forEach((qItem, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if(selected && selected.value === qItem.ans) {
+                    score++;
+                }
+            });
+
+            // Calculate Time
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            const timeString = `${mins}:${secs}`;
+
+            // Show Results
+            document.getElementById('score-text').innerText = score;
+            document.getElementById('time-taken-text').innerText = timeString;
+
+            // Analysis / Feedback
+            let feedback = "";
+            if(score >= 25) {
+                feedback = "🌟 ยอดเยี่ยมมาก! คุณมีความเข้าใจในคำศัพท์และไวยากรณ์เป็นอย่างดี";
+            } else if(score >= 18) {
+                feedback = "👍 ทำได้ดี! ลองกลับไปทบทวนจุดที่ผิดในส่วน Learning ดูอีกนิดนะครับ";
+            } else {
+                feedback = "💪 พยายามอีกนิด! แนะนำให้กลับไปทบทวน Flashcards และ Reading อีกครั้งนะ";
+            }
+            document.getElementById('feedback-text').innerText = feedback;
+
+            // Switch view
+            document.getElementById('eng-mock').style.display = 'none';
+            document.getElementById('eng-result').style.display = 'block';
+            window.scrollTo(0,0);
+        }
+
+        function resetQuiz() {
+            document.getElementById('quiz-form').reset();
+            switchEngTab('mock');
+        }
+
+        // Initialize Page
+        window.onload = () => {
+            renderFlashcards();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
